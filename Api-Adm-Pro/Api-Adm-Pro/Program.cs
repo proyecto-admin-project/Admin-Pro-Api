@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-namespace Api_Adm_Pro
+namespace ApiAdmPro
 {
     public class Program
     {
