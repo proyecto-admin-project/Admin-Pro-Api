@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ApiAdmPro.Context;
+using ApiAdmPro.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -11,36 +14,66 @@ namespace ApiAdmPro.Controllers
     [Route("api/[controller]")]
     public class UsuariosController : Controller
     {
-        // GET: api/<controller>
+        private ApplicationDbContext _context;
+
+        public UsuariosController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+        // GET: api/Usuarios
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuario()
         {
-            return new string[] { "value1", "value2" };
+            return await _context.Usuarios.ToListAsync();
         }
 
-        // GET api/<controller>/5
+        // GET api/Usuarios/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<ActionResult<Usuario>> GetUsuario(long id)
         {
-            return "value";
+            var Usuario = await _context.Usuarios.FindAsync(id);
+            if (Usuario == null)
+            {
+                return NotFound();
+            }
+            return Usuario;
         }
 
-        // POST api/<controller>
+        // POST: api/Usuarios
         [HttpPost]
-        public void Post([FromBody]string value)
+        public async Task<ActionResult<Prestamo>> PostUsuario(Usuario item)
         {
+            _context.Usuarios.Add(item);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetUsuario), new { id = item.Id },
+            item);
         }
 
-        // PUT api/<controller>/5
+        // PUT: api/Usuarios/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        public async Task<IActionResult> PutUsuario(long id, Usuario item)
         {
+            if (id != item.Id)
+            {
+                return BadRequest();
+            }
+            _context.Entry(item).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
 
-        // DELETE api/<controller>/5
+        // DELETE: api/Usuarios/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<IActionResult> DeletePrestamo(long id)
         {
+            var Usuario = await _context.Usuarios.FindAsync(id);
+            if (Usuario == null)
+            {
+                return NotFound();
+            }
+            _context.Usuarios.Remove(Usuario);
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
     }
 }

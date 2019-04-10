@@ -2,46 +2,79 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ApiAdmPro.Context;
+using ApiAdmPro.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace ApiAdmPro.Controllers
 {
     [Route("api/[controller]")]
+    [ApiController]
     public class PrestamosController : Controller
     {
-        // GET: api/<controller>
+        private ApplicationDbContext _context;
+
+        public PrestamosController(ApplicationDbContext context)
+        {
+            _context = context;
+        }
+        // GET: api/Prestamos
         [HttpGet]
-        public IEnumerable<string> Get()
+        public async Task<ActionResult<IEnumerable<Prestamo>>> GetPrestamo()
         {
-
-            return new string[] { "value1", "value2" };
+            return await _context.Prestamos.ToListAsync();
         }
 
-        // GET api/<controller>/5
+        // GET api/Prestamos/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<ActionResult<Prestamo>> GetPrestamo(long id)
         {
-            return "value";
+            var Prestamo = await _context.Prestamos.FindAsync(id);
+            if (Prestamo == null)
+            {
+                return NotFound();
+            }
+            return Prestamo;
         }
 
-        // POST api/<controller>
+        // POST: api/Prestamos
         [HttpPost]
-        public void Post([FromBody]string value)
+        public async Task<ActionResult<Prestamo>> PostPrestamo(Prestamo item)
         {
+            _context.Prestamos.Add(item);
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetPrestamo), new { id = item.Id },
+            item);
         }
 
-        // PUT api/<controller>/5
+        // PUT: api/Prestamos/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody]string value)
+        public async Task<IActionResult> PutPrestamo(long id, Prestamo item)
         {
+            if (id != item.Id)
+            {
+                return BadRequest();
+            }
+            _context.Entry(item).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
 
-        // DELETE api/<controller>/5
+        // DELETE: api/Prestamos/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<IActionResult> DeletePrestamo(long id)
         {
+            var Prestamo = await _context.Prestamos.FindAsync(id);
+            if (Prestamo == null)
+            {
+                return NotFound();
+            }
+            _context.Prestamos.Remove(Prestamo);
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
     }
 }
